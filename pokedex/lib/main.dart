@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pokedex/pokemon_list.dart';
+import 'package:sizer/sizer.dart';
 
 void main() {
   runApp(const MyApp());
@@ -11,13 +12,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PokeDex',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyBase(title: 'Flutter Demo Home Page'),
-    );
+    return Sizer(builder: (context, orientation, deviceType) {
+      return MaterialApp(
+        title: 'PokeDex',
+        theme: ThemeData(
+          primarySwatch: Colors.red,
+        ),
+        home: const MyBase(title: 'POKEDEX'),
+      );
+    });
   }
 }
 
@@ -31,14 +34,7 @@ class MyBase extends StatefulWidget {
 }
 
 class _MyBaseState extends State<MyBase> {
-  int _counter = 0;
   List screens = [];
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
 
   @override
   void initState() {

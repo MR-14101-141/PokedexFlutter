@@ -20,8 +20,6 @@ class PokeListScreen extends StatefulWidget {
 class _PokeListState extends State<PokeListScreen> {
   late ScrollController _scrollController;
   late List list = List.empty();
-  late double deviceHeight = MediaQuery.of(context).size.height;
-  late double deviceWidth = MediaQuery.of(context).size.width;
 
   Future<void> _pullRefresh() async {
     list = List.empty();
@@ -88,16 +86,25 @@ class _PokeListState extends State<PokeListScreen> {
       itemCount: list.length,
       itemBuilder: (context, i) {
         return list != List.empty()
-            ? SlideAnimation(
-                delay: 3,
-                child: SizedBox(
-                    height: (deviceHeight * 5) / 100,
-                    width: deviceWidth,
-                    child: InkWell(
-                        onTap: () {},
-                        child: Column(children: [
-                          Text(list[i]['name'].toString()),
-                        ]))))
+            ? Column(children: [
+                SlideAnimation(
+                    delay: 3,
+                    child: Container(
+                        height: 20.h,
+                        width: 100.w,
+                        color: Colors.white,
+                        child: InkWell(
+                            onTap: () {},
+                            child: Column(children: [
+                              Text(list[i]['name'].toString()),
+                              Image.network(
+                                'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${list[i]['url'].toString().split('/')[6]}.png',
+                                width: 15.h,
+                                height: 15.h,
+                              )
+                            ])))),
+                Padding(padding: EdgeInsets.only(bottom: 1.h))
+              ])
             : const SizedBox(
                 height: 0,
                 width: 0,
