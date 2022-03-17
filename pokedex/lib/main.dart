@@ -34,33 +34,13 @@ class MyBase extends StatefulWidget {
 }
 
 class _MyBaseState extends State<MyBase> {
-  List screens = [];
-
   @override
   void initState() {
-    screens = [
-      Navigator(
-        onGenerateRoute: (settings) {
-          Widget page = const PokeListScreen(title: '1');
-          if (settings.name == 'PokeListScreen') {
-            page = const PokeListScreen(title: '2');
-          }
-          return MaterialPageRoute(builder: (context) => page);
-        },
-      ),
-    ];
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: SafeArea(
-        child: Center(child: screens[0]),
-      ),
-    );
+    return const PokeListScreen(title: '1');
   }
 }

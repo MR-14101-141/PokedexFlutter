@@ -5,8 +5,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
-import 'Animation/_slideanimation.dart';
+import 'Animation/_fadeanimation.dart';
 import 'dart:developer';
+
+import 'pokemon_detail.dart';
 
 class PokeListScreen extends StatefulWidget {
   const PokeListScreen({Key? key, required this.title}) : super(key: key);
@@ -20,13 +22,27 @@ class PokeListScreen extends StatefulWidget {
 class _PokeListState extends State<PokeListScreen> {
   late ScrollController _scrollController;
   late List list = List.empty();
+  int offset = 10;
 
-  Future<void> _pullRefresh() async {
-    list = List.empty();
-    final response =
-        await http.get(Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=10'));
+  Future<void> pullRefresh() async {
+    setState(() {
+      list = List.empty();
+    });
     if (mounted) {
+      final response = await http
+          .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=10'));
       log('TEST:$list');
+      setState(() {
+        offset = 0;
+        list = List.from(list)..addAll(json.decode(response.body)['results']);
+      });
+    }
+  }
+
+  Future<void> loadList() async {
+    if (mounted) {
+      final response = await http
+          .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=10'));
       setState(() {
         list = List.from(list)..addAll(json.decode(response.body)['results']);
       });
@@ -34,26 +50,38 @@ class _PokeListState extends State<PokeListScreen> {
   }
 
   Future<void> lazyLoad() async {
-    final response =
-        await http.get(Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=20'));
     if (mounted) {
+      final response = await http.get(Uri.parse(
+          'https://pokeapi.co/api/v2/pokemon?limit=10&offset=$offset'));
       setState(() {
+        offset = offset + 10;
         list = List.from(list)..addAll(json.decode(response.body)['results']);
       });
     }
   }
 
+  _selectPoke(String url) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+          builder: (context) => PokeDetailScreen(
+                url: url,
+              )),
+    );
+  }
+
   _scrollListener() {
     if (_scrollController.offset >=
             _scrollController.position.maxScrollExtent &&
-        !_scrollController.position.outOfRange) {}
+        !_scrollController.position.outOfRange) {
+      lazyLoad();
+    }
   }
 
   @override
   initState() {
     super.initState();
-    lazyLoad();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+    loadList();
     _scrollController = ScrollController(initialScrollOffset: 5.0)
       ..addListener(_scrollListener);
   }
@@ -66,50 +94,64 @@ class _PokeListState extends State<PokeListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return SafeArea(
+        child: Scaffold(
+      appBar: AppBar(
+        title: const Text('POKEDEX'),
+      ),
       backgroundColor: Colors.cyan.shade50,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
+        children: [
+          Padding(padding: EdgeInsets.only(top: 3.h)),
           Expanded(
               child: RefreshIndicator(
-            onRefresh: _pullRefresh,
-            child: _listPoke(),
+            onRefresh: pullRefresh,
+            child: listPoke(),
           ))
         ],
       ),
-    );
+    ));
   }
 
-  Widget _listPoke() {
-    return ListView.builder(
-      itemCount: list.length,
-      itemBuilder: (context, i) {
-        return list != List.empty()
-            ? Column(children: [
-                SlideAnimation(
-                    delay: 3,
-                    child: Container(
-                        height: 20.h,
-                        width: 100.w,
+  Widget listPoke() {
+    if (list.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    } else {
+      return GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+          ),
+          controller: _scrollController,
+          itemCount: list.length,
+          itemBuilder: (context, index) {
+            return Column(children: [
+              FadeAnimation(
+                  delay: 3,
+                  child: Ink(
+                      height: 20.h,
+                      width: 45.w,
+                      decoration: BoxDecoration(
                         color: Colors.white,
-                        child: InkWell(
-                            onTap: () {},
-                            child: Column(children: [
-                              Text(list[i]['name'].toString()),
-                              Image.network(
-                                'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${list[i]['url'].toString().split('/')[6]}.png',
-                                width: 15.h,
-                                height: 15.h,
-                              )
-                            ])))),
-                Padding(padding: EdgeInsets.only(bottom: 1.h))
-              ])
-            : const SizedBox(
-                height: 0,
-                width: 0,
-              );
-      },
-    );
+                        borderRadius: BorderRadius.circular(10.sp),
+                      ),
+                      child: InkWell(
+                          focusColor: Colors.white,
+                          borderRadius: BorderRadius.circular(10.sp),
+                          onTap: () {
+                            _selectPoke(list[index]['url']);
+                          },
+                          child: Column(children: [
+                            Padding(padding: EdgeInsets.only(top: 1.5.h)),
+                            Image.network(
+                              'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${list[index]['url'].toString().split('/')[6]}.png',
+                              width: 15.h,
+                              height: 15.h,
+                            ),
+                            Text(list[index]['name'].toString().toUpperCase()),
+                          ])))),
+            ]);
+          });
+    }
   }
 }
