@@ -51,6 +51,6 @@ class TypeColors {
     if (_mapRep.containsKey(propertyName)) {
       return _mapRep[propertyName];
     }
-    throw ArgumentError('property not found');
+    return Colors.white;
   }
 }

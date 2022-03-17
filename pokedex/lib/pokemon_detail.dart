@@ -34,6 +34,8 @@ class _PokeDetailState extends State<PokeDetailScreen> {
       final response = await http.get(Uri.parse(widget.url));
       setState(() {
         poke['name'] = json.decode(response.body)['forms'][0]['name'];
+        poke['imageUrl'] = json.decode(response.body)['sprites']['other']
+            ['official-artwork']['front_default'];
         poke['types'] = json.decode(response.body)['types'];
       });
     }
@@ -59,7 +61,9 @@ class _PokeDetailState extends State<PokeDetailScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('POKEDEX'),
+        title: (poke.isNotEmpty)
+            ? Text(poke['name'].toString().toUpperCase())
+            : const Text(''),
       ),
       backgroundColor: Colors.cyan.shade50,
       body: Column(
@@ -83,11 +87,32 @@ class _PokeDetailState extends State<PokeDetailScreen> {
         slivers: [
           SliverFillRemaining(
               hasScrollBody: false,
-              child: Container(
-                alignment: Alignment.center,
-                color: const TypeColors().get(poke['types'][0]['type']['name']),
-                child: Text(poke['types'][0]['type'].toString()),
-              )),
+              child: Stack(children: [
+                Container(
+                  //alignment: Alignment.center,
+                  color:
+                      const TypeColors().get(poke['types'][0]['type']['name']),
+                ),
+                Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Container(
+                      height: 50.h,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(20.sp),
+                            topRight: Radius.circular(20.sp)),
+                        color: Colors.white,
+                      ),
+                    )),
+                Align(
+                  alignment: Alignment.center,
+                  child: Image.network(
+                    poke['imageUrl'],
+                    width: 30.h,
+                    height: 30.h,
+                  ),
+                ),
+              ])),
         ],
       );
     }
