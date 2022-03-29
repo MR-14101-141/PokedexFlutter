@@ -13,30 +13,31 @@ class SizeAnimation extends StatefulWidget {
 
 class _SizeTransitionDemoState extends State<SizeAnimation>
     with TickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+  late AnimationController animationController;
+  late Animation<double> animation;
 
   @override
   initState() {
     super.initState();
 
-    _controller = AnimationController(
+    animationController = AnimationController(
       duration: Duration(milliseconds: (500 * widget.delay).round()),
       vsync: this,
     )..forward();
-    _animation = CurvedAnimation(parent: _controller, curve: Curves.bounceOut);
+    animation =
+        CurvedAnimation(parent: animationController, curve: Curves.bounceOut);
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return SizeTransition(
-        sizeFactor: _animation,
+        sizeFactor: animation,
         axis: Axis.horizontal,
         axisAlignment: 2,
         child: widget.child);

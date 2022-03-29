@@ -8,6 +8,7 @@ import 'package:sizer/sizer.dart';
 import 'Animation/_fadeanimation.dart';
 import 'dart:developer';
 
+import 'Animation/_sizeanimation.dart';
 import 'pokemon_detail.dart';
 
 class PokeListScreen extends StatefulWidget {
@@ -31,9 +32,9 @@ class _PokeListState extends State<PokeListScreen> {
     if (mounted) {
       final response = await http
           .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=10'));
-      log('TEST:$list');
+      log('TEST1');
       setState(() {
-        offset = 0;
+        offset = 10;
         list = List.from(list)..addAll(json.decode(response.body)['results']);
       });
     }
@@ -43,6 +44,7 @@ class _PokeListState extends State<PokeListScreen> {
     if (mounted) {
       final response = await http
           .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=10'));
+      log('TEST3');
       setState(() {
         list = List.from(list)..addAll(json.decode(response.body)['results']);
       });
@@ -53,6 +55,7 @@ class _PokeListState extends State<PokeListScreen> {
     if (mounted) {
       final response = await http.get(Uri.parse(
           'https://pokeapi.co/api/v2/pokemon?limit=10&offset=$offset'));
+      log('TEST2');
       setState(() {
         offset = offset + 10;
         list = List.from(list)..addAll(json.decode(response.body)['results']);
@@ -60,13 +63,18 @@ class _PokeListState extends State<PokeListScreen> {
     }
   }
 
-  _selectPoke(String url) {
+  selectPoke(String url) {
     Navigator.push(
       context,
-      MaterialPageRoute(
-          builder: (context) => PokeDetailScreen(
-                url: url,
-              )),
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) => PokeDetailScreen(
+          url: url,
+        ),
+        transitionsBuilder: (context, animation1, animation2, child) =>
+            ScaleTransition(
+                scale: animation1, alignment: Alignment.center, child: child),
+        transitionDuration: const Duration(milliseconds: 500),
+      ),
     );
   }
 
@@ -139,7 +147,7 @@ class _PokeListState extends State<PokeListScreen> {
                           focusColor: Colors.white,
                           borderRadius: BorderRadius.circular(10.sp),
                           onTap: () {
-                            _selectPoke(list[index]['url']);
+                            selectPoke(list[index]['url']);
                           },
                           child: Column(children: [
                             Padding(padding: EdgeInsets.only(top: 1.5.h)),
