@@ -1,14 +1,11 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
 import 'Animation/_fadeanimation.dart';
 import 'dart:developer';
 
-import 'Animation/_sizeanimation.dart';
 import 'pokemon_detail.dart';
 
 class PokeListScreen extends StatefulWidget {
@@ -22,7 +19,7 @@ class PokeListScreen extends StatefulWidget {
 
 class _PokeListState extends State<PokeListScreen> {
   late ScrollController _scrollController;
-  late List list = List.empty();
+  List list = [];
   int offset = 10;
 
   Future<void> pullRefresh() async {
@@ -46,7 +43,7 @@ class _PokeListState extends State<PokeListScreen> {
           .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=10'));
       log('TEST3');
       setState(() {
-        list = List.from(list)..addAll(json.decode(response.body)['results']);
+        list.addAll(json.decode(response.body)['results']);
       });
     }
   }
@@ -58,7 +55,7 @@ class _PokeListState extends State<PokeListScreen> {
       log('TEST2');
       setState(() {
         offset = offset + 10;
-        list = List.from(list)..addAll(json.decode(response.body)['results']);
+        list.addAll(json.decode(response.body)['results']);
       });
     }
   }
@@ -111,7 +108,6 @@ class _PokeListState extends State<PokeListScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Padding(padding: EdgeInsets.only(top: 3.h)),
           Expanded(
               child: RefreshIndicator(
             onRefresh: pullRefresh,
@@ -127,6 +123,7 @@ class _PokeListState extends State<PokeListScreen> {
       return const Center(child: CircularProgressIndicator());
     } else {
       return GridView.builder(
+          padding: EdgeInsets.only(top: 5.h),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2,
           ),

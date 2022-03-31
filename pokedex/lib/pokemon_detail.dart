@@ -1,12 +1,8 @@
 import 'dart:convert';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
-import 'Animation/_fadeanimation.dart';
-import 'dart:developer';
 
 import 'Types/type_color.dart';
 
@@ -20,7 +16,7 @@ class PokeDetailScreen extends StatefulWidget {
 }
 
 class _PokeDetailState extends State<PokeDetailScreen> {
-  late Map<String, dynamic> poke = {};
+  Map<String, dynamic> poke = {};
 
   Future<void> pullRefresh() async {
     setState(() {
@@ -36,7 +32,18 @@ class _PokeDetailState extends State<PokeDetailScreen> {
         poke['name'] = json.decode(response.body)['forms'][0]['name'];
         poke['imageUrl'] = json.decode(response.body)['sprites']['other']
             ['official-artwork']['front_default'];
-        poke['types'] = json.decode(response.body)['types'];
+        poke['types'] = [];
+        for (int i = 0;
+            i < json.decode(response.body)['types'].toList().length;
+            i++) {
+          poke['types'].add(json.decode(response.body)['types'][i]['type']['name']);
+        }
+        poke['abilities'] = [];
+        for (int i = 0;
+            i < json.decode(response.body)['abilities'].toList().length;
+            i++) {
+          poke['abilities'].add(json.decode(response.body)['abilities'][i]['ability']['name']);
+        }
       });
     }
   }
@@ -90,12 +97,11 @@ class _PokeDetailState extends State<PokeDetailScreen> {
               child: Stack(children: [
                 Container(
                   //alignment: Alignment.center,
-                  color:
-                      const TypeColors().get(poke['types'][0]['type']['name']),
+                  color: const TypeColors().get(poke['types'][0].toString()),
                 ),
                 Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
+                  alignment: Alignment.bottomCenter,
+                  child: Container(
                       height: 50.h,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.only(
@@ -103,9 +109,49 @@ class _PokeDetailState extends State<PokeDetailScreen> {
                             topRight: Radius.circular(20.sp)),
                         color: Colors.white,
                       ),
-                    )),
+                      child: Container(
+                        padding: EdgeInsets.only(top: 8.h),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: const [
+                                Text(
+                                  'NAME:',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'TYPES: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  'ABILITIES: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
+                            Container(
+                              padding: EdgeInsets.only(left: 1.h),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(poke['name'].toString().toUpperCase()),
+                                  Text(poke['types']
+                                      .join(", ")
+                                      .toString()
+                                      .toUpperCase()),
+                                  for (String item in poke['abilities'])
+                                    Text(item.toString().toUpperCase())
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )),
+                ),
                 Align(
-                  alignment: Alignment.center,
+                  alignment: const Alignment(0.0, -0.5),
                   child: Image.network(
                     poke['imageUrl'],
                     width: 30.h,
