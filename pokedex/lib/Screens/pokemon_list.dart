@@ -1,11 +1,9 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
-import 'Animation/_fadeanimation.dart';
+import '../Animations/_fadeanimation.dart';
 import 'dart:developer';
-
 import 'pokemon_detail.dart';
 
 class PokeListScreen extends StatefulWidget {
@@ -100,22 +98,24 @@ class _PokeListState extends State<PokeListScreen> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-        child: Scaffold(
-      appBar: AppBar(
-        title: const Text('POKEDEX'),
-      ),
-      backgroundColor: Colors.cyan.shade50,
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text('POKEDEX'),
+        ),
+        backgroundColor: Colors.cyan.shade50,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
               child: RefreshIndicator(
-            onRefresh: pullRefresh,
-            child: listPoke(),
-          ))
-        ],
+                onRefresh: pullRefresh,
+                child: listPoke(),
+              ),
+            )
+          ],
+        ),
       ),
-    ));
+    );
   }
 
   Widget listPoke() {
