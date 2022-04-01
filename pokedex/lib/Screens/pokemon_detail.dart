@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
-import '../Types/type_color.dart';
+import 'package:pokedex/Types/type_color.dart';
 
 class PokeDetailScreen extends StatefulWidget {
   const PokeDetailScreen({Key? key, required this.url}) : super(key: key);

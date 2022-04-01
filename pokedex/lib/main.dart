@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/pokemon_list.dart';
+import 'package:pokedex/Screens/pokemon_list.dart';
 import 'package:sizer/sizer.dart';
 
 void main() {

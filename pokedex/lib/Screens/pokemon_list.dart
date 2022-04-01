@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:sizer/sizer.dart';
-import '../Animations/_fadeanimation.dart';
+import 'package:pokedex/Animations/_fadeanimation.dart';
 import 'dart:developer';
 import 'pokemon_detail.dart';
 
