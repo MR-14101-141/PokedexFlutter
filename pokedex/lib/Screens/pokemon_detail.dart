@@ -155,7 +155,7 @@ class _PokeDetailState extends State<PokeDetailScreen> {
                   ),
                 ),
                 Align(
-                  alignment: const Alignment(0.0, -0.5),
+                  alignment: const Alignment(0.0, -0.6),
                   child: Image.network(
                     poke['imageUrl'],
                     width: 30.h,

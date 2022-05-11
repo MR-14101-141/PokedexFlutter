@@ -103,16 +103,9 @@ class _PokeListState extends State<PokeListScreen> {
           title: const Text('POKEDEX'),
         ),
         backgroundColor: Colors.cyan.shade50,
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: pullRefresh,
-                child: listPoke(),
-              ),
-            )
-          ],
+        body: RefreshIndicator(
+          onRefresh: pullRefresh,
+          child: listPoke(),
         ),
       ),
     );
@@ -120,43 +113,50 @@ class _PokeListState extends State<PokeListScreen> {
 
   Widget listPoke() {
     if (list.isEmpty) {
-      return const Center(child: CircularProgressIndicator());
+      return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: const [Center(child: CircularProgressIndicator())]);
     } else {
-      return GridView.builder(
-          padding: EdgeInsets.only(top: 5.h),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-          ),
-          controller: _scrollController,
-          itemCount: list.length,
-          itemBuilder: (context, index) {
-            return Column(children: [
-              FadeAnimation(
-                  delay: 3,
-                  child: Ink(
-                      height: 20.h,
-                      width: 45.w,
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(10.sp),
-                      ),
-                      child: InkWell(
-                          focusColor: Colors.white,
+      return ListView(controller: _scrollController, children: [
+        GridView.builder(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            padding: EdgeInsets.only(top: 5.h),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+            ),
+            itemCount: list.length,
+            itemBuilder: (context, index) {
+              return Column(children: [
+                FadeAnimation(
+                    delay: 3,
+                    child: Ink(
+                        height: 20.h,
+                        width: 45.w,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(10.sp),
-                          onTap: () {
-                            selectPoke(list[index]['url']);
-                          },
-                          child: Column(children: [
-                            Padding(padding: EdgeInsets.only(top: 1.5.h)),
-                            Image.network(
-                              'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${list[index]['url'].toString().split('/')[6]}.png',
-                              width: 15.h,
-                              height: 15.h,
-                            ),
-                            Text(list[index]['name'].toString().toUpperCase()),
-                          ])))),
-            ]);
-          });
+                        ),
+                        child: InkWell(
+                            focusColor: Colors.white,
+                            borderRadius: BorderRadius.circular(10.sp),
+                            onTap: () {
+                              selectPoke(list[index]['url']);
+                            },
+                            child: Column(children: [
+                              Padding(padding: EdgeInsets.only(top: 1.5.h)),
+                              Image.network(
+                                'https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${list[index]['url'].toString().split('/')[6]}.png',
+                                width: 15.h,
+                                height: 15.h,
+                              ),
+                              Text(
+                                  list[index]['name'].toString().toUpperCase()),
+                            ])))),
+              ]);
+            }),
+        const Center(child: CircularProgressIndicator())
+      ]);
     }
   }
 }
