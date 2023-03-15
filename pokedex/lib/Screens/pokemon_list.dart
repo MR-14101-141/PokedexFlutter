@@ -1,9 +1,9 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:pokedex/Cubit/pokemon_list_cubit.dart';
+import 'package:pokedex/Cubit/pokemon_list_state.dart';
 import 'package:sizer/sizer.dart';
 import 'package:pokedex/Animations/_fadeanimation.dart';
-import 'dart:developer';
 import 'pokemon_detail.dart';
 
 class PokeListScreen extends StatefulWidget {
@@ -17,46 +17,6 @@ class PokeListScreen extends StatefulWidget {
 
 class _PokeListState extends State<PokeListScreen> {
   late ScrollController _scrollController;
-  List list = [];
-  int offset = 10;
-
-  Future<void> pullRefresh() async {
-    setState(() {
-      list = List.empty();
-    });
-    if (mounted) {
-      final response = await http
-          .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=10'));
-      log('TEST1');
-      setState(() {
-        offset = 10;
-        list = List.from(list)..addAll(json.decode(response.body)['results']);
-      });
-    }
-  }
-
-  Future<void> loadList() async {
-    if (mounted) {
-      final response = await http
-          .get(Uri.parse('https://pokeapi.co/api/v2/pokemon?limit=10'));
-      log('TEST3');
-      setState(() {
-        list.addAll(json.decode(response.body)['results']);
-      });
-    }
-  }
-
-  Future<void> lazyLoad() async {
-    if (mounted) {
-      final response = await http.get(Uri.parse(
-          'https://pokeapi.co/api/v2/pokemon?limit=10&offset=$offset'));
-      log('TEST2');
-      setState(() {
-        offset = offset + 10;
-        list.addAll(json.decode(response.body)['results']);
-      });
-    }
-  }
 
   selectPoke(String url) {
     Navigator.push(
@@ -74,17 +34,19 @@ class _PokeListState extends State<PokeListScreen> {
   }
 
   _scrollListener() {
+    final cubit = context.read<PokemonListCubit>();
     if (_scrollController.offset >=
             _scrollController.position.maxScrollExtent &&
         !_scrollController.position.outOfRange) {
-      lazyLoad();
+      cubit.lazyLoadPokemonList();
     }
   }
 
   @override
   initState() {
     super.initState();
-    loadList();
+    final cubit = context.read<PokemonListCubit>();
+    cubit.fetchPokemonList();
     _scrollController = ScrollController(initialScrollOffset: 5.0)
       ..addListener(_scrollListener);
   }
@@ -97,25 +59,41 @@ class _PokeListState extends State<PokeListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cubit = context.read<PokemonListCubit>();
     return SafeArea(
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('POKEDEX'),
-        ),
-        backgroundColor: Colors.cyan.shade50,
-        body: RefreshIndicator(
-          onRefresh: pullRefresh,
-          child: listPoke(),
-        ),
-      ),
+          appBar: AppBar(
+            title: const Text('POKEDEX'),
+          ),
+          backgroundColor: Colors.cyan.shade50,
+          body: BlocBuilder<PokemonListCubit, PokemonListState>(
+              builder: (context, state) {
+            if (state is ErrorPokemonListState) {
+              return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [Center(child: Text(state.error))]);
+            } else if (state is ResponsePokemonListState) {
+              return RefreshIndicator(
+                onRefresh: cubit.fetchPokemonList,
+                child: listPoke(state.list),
+              );
+            } else {
+              return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [Center(child: CircularProgressIndicator())]);
+            }
+          })),
     );
   }
 
-  Widget listPoke() {
+  Widget listPoke(list) {
     if (list.isEmpty) {
       return Column(
           crossAxisAlignment: CrossAxisAlignment.center,
-          children: const [Center(child: CircularProgressIndicator())]);
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: const [Center(child: Text('Empty Data'))]);
     } else {
       return ListView(controller: _scrollController, children: [
         GridView.builder(
@@ -155,7 +133,9 @@ class _PokeListState extends State<PokeListScreen> {
                             ])))),
               ]);
             }),
-        const Center(child: CircularProgressIndicator())
+        Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: const [Center(child: CircularProgressIndicator())])
       ]);
     }
   }
