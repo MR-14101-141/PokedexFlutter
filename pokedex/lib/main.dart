@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:pokedex/Cubit/pokemon_list_cubit.dart';
+import 'package:pokedex/Cubit/pokemon_detail/pokemon_detail_cubit.dart';
+import 'package:pokedex/Cubit/pokemon_list/pokemon_list_cubit.dart';
+import 'package:pokedex/Repository/pokemon_detail_repository.dart';
 import 'package:pokedex/Repository/pokemon_list_repository.dart';
 import 'package:pokedex/Screens/pokemon_list.dart';
 import 'package:sizer/sizer.dart';
@@ -15,8 +17,15 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => PokemonListCubit(PokemonListRepository()),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(
+          create: (context) => PokemonListCubit(PokemonListRepository()),
+        ),
+        BlocProvider(
+          create: (context) => PokemonDetailCubit(PokemonDetailRepository()),
+        )
+      ],
       child: Sizer(builder: (context, orientation, deviceType) {
         return MaterialApp(
           title: 'PokeDex',

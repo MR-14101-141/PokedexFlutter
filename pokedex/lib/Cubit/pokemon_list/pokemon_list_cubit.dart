@@ -1,5 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pokedex/Cubit/pokemon_list_state.dart';
+import 'package:pokedex/Cubit/pokemon_list/pokemon_list_state.dart';
 import 'package:pokedex/Repository/pokemon_list_repository.dart';
 
 class PokemonListCubit extends Cubit<PokemonListState> {

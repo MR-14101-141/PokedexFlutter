@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:pokedex/Cubit/pokemon_list_cubit.dart';
-import 'package:pokedex/Cubit/pokemon_list_state.dart';
+import 'package:pokedex/Cubit/pokemon_list/pokemon_list_cubit.dart';
+import 'package:pokedex/Cubit/pokemon_list/pokemon_list_state.dart';
 import 'package:sizer/sizer.dart';
 import 'package:pokedex/Animations/_fadeanimation.dart';
 import 'pokemon_detail.dart';
